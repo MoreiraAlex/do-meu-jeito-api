@@ -1,12 +1,21 @@
 const express = require("express");
-const rateLimit = require("express-rate-limit");
 const cors = require('cors');
+const helmet = require("helmet");
+const xss = require("xss-clean");
+const rateLimit = require("express-rate-limit");
+const { port } = require("./config/keys");
 
 
 const app = express();
 
 // Habilitar CORS
 app.use(cors());
+
+// Middlewares de segurança
+app.use(express.json());
+app.use(helmet());
+app.use(xss());
+app.use(express.urlencoded({ extended: true }));
 
 
 // Limitação de requisições
@@ -20,8 +29,7 @@ app.use(limiter);
 // Rotas
 // app.use("/auth", authRoutes);
 
-const PORT = process.env.PORT || 3000;
 // Inicializar servidor HTTPS
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+app.listen(port, () => {
+  console.log(`Servidor rodando na porta ${port}`);
 });
