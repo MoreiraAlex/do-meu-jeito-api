@@ -1,10 +1,11 @@
 const express = require("express");
-const { listGames } = require("../controllers/termoController");
+const { listGames, listGamesPagination, listGameById } = require("../controllers/termoController");
 
 const router = express.Router();
 
 router.get("/", listGames);
-// router.get("/:id", listGameById);
+router.get("/pagination", listGamesPagination);
+router.get("/:id", listGameById);
 // router.post("/",createGame);
 // router.put("/:id",updateGame);
 // router.delete("/:id", deleteGameById);

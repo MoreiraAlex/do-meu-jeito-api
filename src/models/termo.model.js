@@ -2,31 +2,12 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const gameSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  theme: {
-    type: String,
-    required: true,
-  },
-  userId: {
-    type: String,
-    required: true,
-  },
-  isPublic: {
-    type: Boolean,
-    required: true,
-  },
-  password: {
-    type: String,
-    default: null,
-  },
-  completed: {
-    type: Boolean,
-    default: false,
-  },
+  gameId: {type: String,required: true,unique: true,},
+  theme: {type: String,required: true,},
+  userId: {type: String,required: true,},
+  isPublic: {type: Boolean,required: true,},
+  password: {type: String,default: null,},
+  completed: {type: Boolean,default: false,},
 }, { timestamps: true });
 
 
