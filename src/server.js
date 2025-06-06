@@ -4,7 +4,7 @@ const helmet = require("helmet");
 const xss = require("xss-clean");
 const rateLimit = require("express-rate-limit");
 const { port } = require("./config/keys");
-
+const { clerkMiddleware } = require("@clerk/express")
 
 const app = express();
 
@@ -26,8 +26,9 @@ const limiter = rateLimit({
 app.use(limiter);
 
 
-// Rotas
-// app.use("/auth", authRoutes);
+// Middleware para proteger rotas
+app.use(clerkMiddleware())
+
 
 // Inicializar servidor HTTPS
 app.listen(port, () => {
