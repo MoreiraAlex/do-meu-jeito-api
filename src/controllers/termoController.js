@@ -10,26 +10,6 @@ const listGames = async (req, res) => {
 };
 
 
-const listGamesPagination = async (req, res) => {
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = parseInt(req.query.skip) || 0;
-
-    try {
-        const games = await Game.find().skip(skip).limit(limit);
-        const total = await Game.countDocuments();
-
-        res.status(200).json({
-            data: games,
-            total,
-            limit,
-            skip
-        });
-    } catch (error) {
-        res.status(500).json({ message: "Erro ao buscar jogos", error });
-    }
-};
-
-
 const listGameById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -42,6 +22,55 @@ const listGameById = async (req, res) => {
         res.status(200).json(game);
     } catch (error) {
         res.status(500).json({ message: "Erro ao buscar jogo", error });
+    }
+};
+
+
+const listGamesByVisibilty = async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = parseInt(req.query.skip) || 0;
+        const { isPublic } = req.query;
+
+        const games = await Game.find({ isPublic }).skip(skip).limit(limit);
+        const total = await Game.countDocuments({ isPublic });
+
+        if (!games) {
+            return res.status(404).json({ message: "Jogos não encontrados." });
+        }
+
+        res.status(200).json({
+            data: games,
+            total,
+            limit,
+            skip
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Erro ao buscar jogos", error });
+    }
+};
+
+const listGamesByUser = async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = parseInt(req.query.skip) || 0;
+        const { userId } = req.params;
+
+        const games = await Game.find({ userId }).skip(skip).limit(limit);
+        const total = await Game.countDocuments({ userId });
+
+        if (!games) {
+            return res.status(404).json({ message: "Jogos não encontrados." });
+        }
+
+        res.status(200).json({
+            data: games,
+            total,
+            limit,
+            skip
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Erro ao buscar jogos", error });
     }
 };
 
@@ -111,4 +140,4 @@ const deleteGameById = async (req, res) => {
 };
 
 
-module.exports = { listGames, listGamesPagination, listGameById, createGame, updateGame, deleteGameById };
+module.exports = { listGames, listGameById, listGamesByUser, listGamesByVisibilty, createGame, updateGame, deleteGameById };
