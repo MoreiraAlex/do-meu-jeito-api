@@ -69,4 +69,28 @@ const createGame = async (req, res) => {
   }
 };
 
-module.exports = { listGames, listGamesPagination, listGameById, createGame };
+const updateGame = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { theme, userId, isPublic } = req.body;
+
+        const game = await Game.findByIdAndUpdate(id,{
+            theme,
+            userId,
+            isPublic,
+            updatedAt: new Date().toISOString(),
+            },
+            { new: true } // Retornar a tarefa atualizada
+        );
+
+        if (!game) {
+            return res.status(404).json({ message: "Jogo não encontrado." });
+        }
+
+        res.status(200).json({ message: "Jogo atualizado com sucesso!", game });
+    } catch (error) {
+        res.status(500).json({ message: "Erro ao atualizar jogo", error });
+    }
+};
+
+module.exports = { listGames, listGamesPagination, listGameById, createGame, updateGame };
