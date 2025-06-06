@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const { getNextSequence } = require("../controllers/sequenceController")
 
 const gameSchema = new mongoose.Schema({
   gameId: {type: String,required: true,unique: true,},
@@ -12,6 +13,10 @@ const gameSchema = new mongoose.Schema({
 
 
 gameSchema.pre('save', async function (next) {
+  if (this.isNew) {
+    this.gameId = await getNextSequence('termo');
+  }
+
   if (!this.isModified('password') || !this.password) return next();
 
   try {

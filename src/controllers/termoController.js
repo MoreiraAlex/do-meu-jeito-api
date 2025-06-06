@@ -45,4 +45,28 @@ const listGameById = async (req, res) => {
     }
 };
 
-module.exports = { listGames, listGamesPagination, listGameById };
+
+const createGame = async (req, res) => {
+    try {
+        const { theme, userId, isPublic, password } = req.body;
+
+        const game = new Game({
+        gameId: 0,
+        theme,
+        userId,
+        isPublic,
+        password,
+        completed: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        });
+
+        await game.save();
+
+        res.status(201).json({ message: "Jogo adicionado com sucesso!", game });
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao criar a jogo", error });
+  }
+};
+
+module.exports = { listGames, listGamesPagination, listGameById, createGame };
