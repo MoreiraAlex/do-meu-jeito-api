@@ -69,6 +69,7 @@ const createGame = async (req, res) => {
   }
 };
 
+
 const updateGame = async (req, res) => {
     try {
         const { id } = req.params;
@@ -92,6 +93,7 @@ const updateGame = async (req, res) => {
         res.status(500).json({ message: "Erro ao atualizar jogo", error });
     }
 };
+
 
 const deleteGameById = async (req, res) => {
   try {

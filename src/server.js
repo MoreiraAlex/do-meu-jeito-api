@@ -30,7 +30,7 @@ app.use(clerkMiddleware())
 app.use("/termo", termoRoute);
 
 
-mongoose.connect(`mongodb+srv://${dbUser}:${dbPass}@cluster.mbqiis7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster`)
+mongoose.connect(`mongodb+srv://${dbUser}:${dbPass}@cluster.mbqiis7.mongodb.net/games?retryWrites=true&w=majority&appName=Cluster`)
 .then(() => console.log("Conectado ao MongoDB"))
 .catch((err) => console.error("Erro ao conectar ao MongoDB", err));
 
