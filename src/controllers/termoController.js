@@ -93,4 +93,20 @@ const updateGame = async (req, res) => {
     }
 };
 
-module.exports = { listGames, listGamesPagination, listGameById, createGame, updateGame };
+const deleteGameById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const game = await Game.findByIdAndDelete(id);
+
+    if (!game) {
+      return res.status(404).json({ message: "Jogo não encontrado." });
+    }
+
+    res.status(200).json({ message: "Jogo removido com sucesso!" });
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao remover jogo", error });
+  }
+};
+
+
+module.exports = { listGames, listGamesPagination, listGameById, createGame, updateGame, deleteGameById };
