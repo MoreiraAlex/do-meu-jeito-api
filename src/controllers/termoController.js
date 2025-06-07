@@ -1,8 +1,11 @@
 const Game = require("../models/termo.model");
+const bcrypt = require('bcrypt');
+
 
 const listGames = async (req, res) => {
     try {
-        const games = await Game.find();
+        const games = await Game.find().sort({ updatedAt: -1 })
+
         res.status(200).json(games);
     } catch (error) {
         res.status(500).json({ message: "Erro ao buscar jogos", error });
@@ -32,7 +35,7 @@ const listGamesByVisibilty = async (req, res) => {
         const skip = parseInt(req.query.skip) || 0;
         const { isPublic } = req.query;
 
-        const games = await Game.find({ isPublic }).skip(skip).limit(limit);
+        const games = await Game.find({ isPublic }).skip(skip).limit(limit).sort({ updatedAt: -1 });
         const total = await Game.countDocuments({ isPublic });
 
         if (!games) {
@@ -56,7 +59,7 @@ const listGamesByUser = async (req, res) => {
         const skip = parseInt(req.query.skip) || 0;
         const { userId } = req.params;
 
-        const games = await Game.find({ userId }).skip(skip).limit(limit);
+        const games = await Game.find({ userId }).skip(skip).limit(limit).sort({ updatedAt: -1 });
         const total = await Game.countDocuments({ userId });
 
         if (!games) {
@@ -125,19 +128,31 @@ const updateGame = async (req, res) => {
 
 
 const deleteGameById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const game = await Game.findByIdAndDelete(id);
+    try {
+        const { id } = req.params;
+        const game = await Game.findByIdAndDelete(id);
 
-    if (!game) {
-      return res.status(404).json({ message: "Jogo não encontrado." });
+        if (!game) {
+            return res.status(404).json({ message: "Jogo não encontrado." });
+        }
+
+        res.status(200).json({ message: "Jogo removido com sucesso!" });
+    } catch (error) {
+        res.status(500).json({ message: "Erro ao remover jogo", error });
     }
+};
 
-    res.status(200).json({ message: "Jogo removido com sucesso!" });
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao remover jogo", error });
-  }
+const checkPasswordGame = async (req, res) => {
+    const { gameId, password } = req.body;
+
+    const game = await Game.findOne({ gameId });
+    if (!game || !game.password) return res.status(404).json({ error: 'Jogo não encontrado' });
+
+    const match = await bcrypt.compare(password, game.password);
+    if (!match) return res.status(401).json({ error: 'Senha incorreta' });
+
+    res.status(200).json({ success: true });
 };
 
 
-module.exports = { listGames, listGameById, listGamesByUser, listGamesByVisibilty, createGame, updateGame, deleteGameById };
+module.exports = { listGames, listGameById, listGamesByUser, listGamesByVisibilty, createGame, updateGame, deleteGameById, checkPasswordGame };
