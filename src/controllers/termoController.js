@@ -80,7 +80,7 @@ const listGamesByUser = async (req, res) => {
 
 const createGame = async (req, res) => {
     try {
-        const { theme, userId, isPublic, password } = req.body;
+        const { theme, userId, isPublic, password, word, attempts } = req.body;
 
         const game = new Game({
         gameId: 0,
@@ -89,6 +89,8 @@ const createGame = async (req, res) => {
         isPublic,
         password,
         completed: false,
+        word,
+        attempts,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         });
@@ -105,12 +107,14 @@ const createGame = async (req, res) => {
 const updateGame = async (req, res) => {
     try {
         const { id } = req.params;
-        const { theme, userId, isPublic } = req.body;
+        const { theme, userId, isPublic, word, attempts } = req.body;
 
         const game = await Game.findOneAndUpdate({ gameId: id },{
             theme,
             userId,
             isPublic,
+            word,
+            attempts,
             updatedAt: new Date().toISOString(),
             },
             { new: true } // Retornar a tarefa atualizada
