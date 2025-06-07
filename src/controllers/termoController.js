@@ -16,7 +16,7 @@ const listGames = async (req, res) => {
 const listGameById = async (req, res) => {
     try {
         const { id } = req.params;
-        const game = await Game.findById(id);
+        const game = await Game.findOne( { gameId: id } );
 
         if (!game) {
            return res.status(404).json({ message: "Jogo não encontrado." });
@@ -107,7 +107,7 @@ const updateGame = async (req, res) => {
         const { id } = req.params;
         const { theme, userId, isPublic } = req.body;
 
-        const game = await Game.findByIdAndUpdate(id,{
+        const game = await Game.findOneAndUpdate({ gameId: id },{
             theme,
             userId,
             isPublic,
@@ -130,7 +130,8 @@ const updateGame = async (req, res) => {
 const deleteGameById = async (req, res) => {
     try {
         const { id } = req.params;
-        const game = await Game.findByIdAndDelete(id);
+        console.log(id)
+        const game = await Game.findOneAndDelete({ gameId: id });
 
         if (!game) {
             return res.status(404).json({ message: "Jogo não encontrado." });
