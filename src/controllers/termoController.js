@@ -88,7 +88,6 @@ const createGame = async (req, res) => {
         userId,
         isPublic,
         password,
-        completed: false,
         word,
         attempts,
         createdAt: new Date().toISOString(),

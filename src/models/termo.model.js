@@ -8,7 +8,6 @@ const gameSchema = new mongoose.Schema({
   userId: {type: String,required: true,},
   isPublic: {type: Boolean,required: true,},
   password: {type: String,default: null,},
-  completed: {type: Boolean,default: false,},
   word: {type: String,default: null,},
   attempts: {type: String,default: null,},
 }, { timestamps: true });
