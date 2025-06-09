@@ -5,6 +5,7 @@ const rateLimit = require("express-rate-limit");
 const { port, dbPass, dbUser } = require("./config/keys");
 const { clerkMiddleware } = require("@clerk/express")
 const termoRoute = require("./routes/termoRoute")
+const userGameRoute = require("./routes/userGameRoute")
 const mongoose = require('mongoose');
 
 
@@ -28,6 +29,7 @@ app.use(clerkMiddleware())
 
 
 app.use("/termo", termoRoute);
+app.use("/userGame", userGameRoute);
 
 
 mongoose.connect(`mongodb+srv://${dbUser}:${dbPass}@cluster.mbqiis7.mongodb.net/games?retryWrites=true&w=majority&appName=Cluster`)

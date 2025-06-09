@@ -1,4 +1,6 @@
 const Game = require("../models/termo.model");
+const UserGame = require("../models/userGame.model");
+
 const bcrypt = require('bcrypt');
 
 
@@ -16,10 +18,31 @@ const listGames = async (req, res) => {
 const listGameById = async (req, res) => {
     try {
         const { id } = req.params;
-        const game = await Game.findOne( { gameId: id } );
+        const userId = req.query?.userId;
+        let game = await Game.findOne( { gameId: id } );
 
         if (!game) {
-           return res.status(404).json({ message: "Jogo não encontrado." });
+            return res.status(404).json({ message: "Jogo não encontrado." });
+        }
+
+        if (userId) {
+            let userGame = await UserGame.findOne({ gameId: id, userId });
+            if(!userGame){
+                userGame = new UserGame({
+                    userId,
+                    gameId: id,
+                    game: 'Termo',
+                    attempts: [],
+                    completed: false,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                });
+        
+                await userGame.save();
+            }
+
+            const gameObj = game.toObject();
+            game = {...gameObj, lastAttempts: userGame.attempts, completed: userGame.completed}
         }
 
         res.status(200).json(game);
@@ -34,6 +57,7 @@ const listGamesByVisibilty = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = parseInt(req.query.skip) || 0;
         const { isPublic } = req.query;
+        const userId = req.query?.userId;
 
         const games = await Game.find({ isPublic }).skip(skip).limit(limit).sort({ updatedAt: -1 });
         const total = await Game.countDocuments({ isPublic });
@@ -42,8 +66,37 @@ const listGamesByVisibilty = async (req, res) => {
             return res.status(404).json({ message: "Jogos não encontrados." });
         }
 
+        const data = [];
+
+        if (userId) {
+            for (const game of games) {
+                let userGame = await UserGame.findOne({ gameId: game.gameId, userId });
+
+                if (!userGame) {
+                    userGame = new UserGame({
+                        userId,
+                        gameId: game.gameId,
+                        game: 'Termo',
+                        attempts: [],
+                        completed: false,
+                    });
+
+                    await userGame.save();
+                }
+
+                const gameObj = game.toObject();
+                data.push({
+                    ...gameObj,
+                    lastAttempts: userGame.attempts,
+                    completed: userGame.completed,
+                });
+            }
+        } else {
+            data.push(...games.map(g => g.toObject()));
+        }
+
         res.status(200).json({
-            data: games,
+            data,
             total,
             limit,
             skip
@@ -52,6 +105,7 @@ const listGamesByVisibilty = async (req, res) => {
         res.status(500).json({ message: "Erro ao buscar jogos", error });
     }
 };
+
 
 const listGamesByUser = async (req, res) => {
     try {
@@ -66,8 +120,37 @@ const listGamesByUser = async (req, res) => {
             return res.status(404).json({ message: "Jogos não encontrados." });
         }
 
+        const data = [];
+
+        if (userId) {
+            for (const game of games) {
+                let userGame = await UserGame.findOne({ gameId: game.gameId, userId });
+
+                if (!userGame) {
+                    userGame = new UserGame({
+                        userId,
+                        gameId: game.gameId,
+                        game: 'Termo',
+                        attempts: [],
+                        completed: false,
+                    });
+
+                    await userGame.save();
+                }
+
+                const gameObj = game.toObject();
+                data.push({
+                    ...gameObj,
+                    lastAttempts: userGame.attempts,
+                    completed: userGame.completed,
+                });
+            }
+        } else {
+            data.push(...games.map(g => g.toObject()));
+        }
+
         res.status(200).json({
-            data: games,
+            data,
             total,
             limit,
             skip
@@ -123,6 +206,8 @@ const updateGame = async (req, res) => {
             return res.status(404).json({ message: "Jogo não encontrado." });
         }
 
+        await UserGame.deleteMany({ gameId: id });
+
         res.status(200).json({ message: "Jogo atualizado com sucesso!", game });
     } catch (error) {
         res.status(500).json({ message: "Erro ao atualizar jogo", error });
@@ -133,12 +218,13 @@ const updateGame = async (req, res) => {
 const deleteGameById = async (req, res) => {
     try {
         const { id } = req.params;
-        console.log(id)
         const game = await Game.findOneAndDelete({ gameId: id });
 
         if (!game) {
             return res.status(404).json({ message: "Jogo não encontrado." });
         }
+
+        await UserGame.deleteMany({ gameId: id });
 
         res.status(200).json({ message: "Jogo removido com sucesso!" });
     } catch (error) {
